@@ -10,5 +10,7 @@ somewhere to be easily accessed to. (Find it in *monitor.awk*)
 
 Second one is simple usb daemon which helps you to *mount* your
 hard drives, flash drives and so on. You should enable it on startup.
-(Look in *usb* directory)
+This usb daemon cannot unmount your devices, so you need to use script
+*usb/umount.awk* manually (bind it somewhere for easy access).
+(Look in *usb* directory for more information)
 
