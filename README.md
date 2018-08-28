@@ -14,3 +14,7 @@ This usb daemon cannot unmount your devices, so you need to use script
 *usb/umount.awk* manually (bind it somewhere for easy access).
 (Look in *usb* directory for more information)
 
+Third one is just cool thing that downloads and sets some reddit
+pictures as ur wallpaper with *feh*. It downloads them to
+*$TOPDIR/res*. (Actually doesnt require *dmenu*)
+
