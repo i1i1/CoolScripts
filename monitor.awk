@@ -123,12 +123,12 @@ func main() {
 	if (!mon)
 		return
 
-	pos = ask("", leftrightsameoff)
+	act = ask("What should we do?", action)
 
-	if (!pos)
+	if (!act)
 		return
 
-	if (pos == "off") {
+	if (act == "off") {
 		setmon(mon, "", "off", "")
 		return;
 	}
@@ -140,24 +140,25 @@ func main() {
 	if (!resol)
 		return
 
-	mon2 = ask("Secondary monitor?", m)
-
-	if ((n - 1) == 1) {
+	if (act == "resolution") {
 		setmon(mon, resol, "", "")
 		return
 	}
 
-	setmon(mon, resol, pos, mon2)
+	mon2 = ask("Secondary monitor?", m)
+
+	setmon(mon, resol, act, mon2)
 }
 
 BEGIN {
 	resolution=/[0-9]+x[0-9]+\+[0-9]+\+[0-9]+/
 
-	leftrightsameoff[0] = 5
-	leftrightsameoff[1] = "left"
-	leftrightsameoff[2] = "right"
-	leftrightsameoff[3] = "same"
-	leftrightsameoff[4] = "off"
+	action[0] = 6
+	action[1] = "left"
+	action[2] = "right"
+	action[3] = "same"
+	action[4] = "off"
+	action[5] = "resolution"
 
 	main()
 	exit
