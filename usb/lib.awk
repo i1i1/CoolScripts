@@ -8,22 +8,53 @@ func umount(dir) {
 	system(cmd)
 }
 
-func devcapacity(d,	cmd) {
+func devcapacity(d,	cmd, arr, s, cap, i) {
 	sub("^/dev/", "", d)
 	
-	cmd = "lsblk -l|grep "d
-	cmd | getline
+	cmd = "cat /proc/partitions |sed -e 1d -e 2d|grep "d"$"
+	cmd | getline s
+	close(cmd)
 
-	return $4
+	split(s, arr, " ")
+	cap = arr[3]
+
+	for (i = 0; cap / 1024 > 2; i++)
+		cap /= 1024
+
+	cap = sprintf("%.0f", cap)
+
+	switch (i) {
+		case 0:
+			cap = cap "K"
+			break;
+		case 1:
+			cap = cap "M"
+			break;
+		case 2:
+			cap = cap "G"
+			break;
+		case 3:
+			cap = cap "T"
+			break;
+		default:
+			cap = "Its Over 9000!!!"
+	}
+
+	return cap
 }
 
-func devdir(d,	cmd) {
-	sub("^/dev/", "", d)
-	
-	cmd = "lsblk -l|grep "d
-	cmd | getline
+func devdir(d,	cmd, s) {
+	cmd = "cat /proc/mounts|grep ^"d"|cut -d' ' -f2"
+	cmd | getline s
+	close(cmd)
 
-	return $7
+	if (!s) {
+		if (system("cat /proc/swaps|grep ^"d"") == 0)
+			s = "swap"
+		close(cmd)
+	}
+
+	return s
 }
 
 func mkdir(d) {
@@ -43,14 +74,21 @@ func lsdevs(res,	cmd, ln, i, md) {
 		else
 			res[i++] = ln
 	}
+
 	res[0] = i
 	close(cmd)
 }
 
 func lsmntdevs(res,	cmd, ln, i) {
-	cmd = "df --output='source'|grep ^/dev/sd"
+	cmd = "cat /proc/mounts|grep ^/dev/sd|cut -d' ' -f1"
 
 	i = 1
+
+	while (cmd | getline ln > 0)
+		res[i++] = ln
+
+	close(cmd)
+	cmd = "cat /proc/swaps|grep ^/dev/sd|cut -d' ' -f1"
 
 	while (cmd | getline ln > 0)
 		res[i++] = ln
@@ -63,8 +101,13 @@ func sleep(sec) {
 	system("sleep " sec)
 }
 
-# Put all things which are not in 'b', but in 'a' to 'c'
-func diff(a, b, c,	i, j, k, fl) {
+# Some python pseudocode
+#
+# c = []
+# for thing in a:
+#   if thing not in b:
+#     c.append(thing)
+func diff(c, a, b,	i, j, k, fl) {
 	k = 1;
 
 	for (i = 1; i < a[0]; i++) {
@@ -137,7 +180,7 @@ func mntdirvalid(d,	cmd) {
 	if (dir(d) == "no")
 		return "no"
 
-	cmd = "df --output='target'|grep '"d"'"
+	cmd = "cat /proc/mounts|cut -d' ' -f2|grep '"d"'"
 	if (system(cmd) == 0) {
 		close(cmd)
 		return "no"
